@@ -1,0 +1,28 @@
+# azure Exporter Workflow
+# This workflow responsible for running azure exporter.
+# azure_client_id: Azure Client ID. For more information on how to create and manage credentials, see the <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal" target="_blank">Azure documentation</a>.
+# azure_client_secret: Azure Client Secret. For more information on how to create and manage credentials, see the <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal" target="_blank">Azure documentation</a>.
+# azure_tenant_id: Azure Tenant ID. For more information on how to create and manage credentials, see the <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal" target="_blank">Azure documentation</a>
+
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: '0 */1 * * *' # Determines the scheduled interval for this workflow. This example runs every hour.
+
+jobs:
+    run-integration:
+        runs-on: ubuntu-latest 
+        timeout-minutes: 30 # Set a time limit for the job
+		
+        steps:
+            - name: Run azure Integration
+              uses: port-labs/ocean-sail@v1
+              with:
+                type: azure
+                port_client_id: ${{ secrets.PORT_CLIENT_ID }}
+                port_client_secret: ${{ secrets.PORT_CLIENT_SECRET }}
+                port_base_url: "https://api.port.io"
+                config: |
+                    azure_client_id: ${{ secrets.azureClientId }}
+                    azure_client_secret: ${{ secrets.azureClientSecret }}
+                    azure_tenant_id: ${{ secrets.azureTenantId }}
