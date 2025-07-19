@@ -1,5 +1,5 @@
 # azure Exporter Workflow
-# This workflow responsible for running azure exporter.
+# This workflow is responsible for running the Azure exporter.
 # azure_client_id: Azure Client ID. For more information on how to create and manage credentials, see the <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal" target="_blank">Azure documentation</a>.
 # azure_client_secret: Azure Client Secret. For more information on how to create and manage credentials, see the <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal" target="_blank">Azure documentation</a>.
 # azure_tenant_id: Azure Tenant ID. For more information on how to create and manage credentials, see the <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal" target="_blank">Azure documentation</a>
