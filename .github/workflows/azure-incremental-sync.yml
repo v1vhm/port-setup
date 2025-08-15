@@ -33,7 +33,7 @@ jobs:
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZURECLIENTID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURECLIENTSECRET }}
-          AZURE_TENANT_ID: ${{ secrets.AZURETENANTID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           PORT_WEBHOOK_INGEST_URL: ${{ secrets.PORT_WEBHOOK_INGEST_URL }}
           CHANGE_WINDOW_MINUTES: 15
           # Optional: Enhanced resource group tag filtering
