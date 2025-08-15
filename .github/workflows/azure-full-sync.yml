@@ -27,7 +27,7 @@ jobs:
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZURECLIENTID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURECLIENTSECRET }}
-          AZURE_TENANT_ID: ${{ secrets.AZURETENANT_D }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           PORT_WEBHOOK_INGEST_URL: ${{ secrets.PORT_WEBHOOK_INGEST_URL }}
           SYNC_MODE: full
           # Optional: Enhanced resource group tag filtering
