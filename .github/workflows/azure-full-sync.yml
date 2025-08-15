@@ -25,9 +25,9 @@ jobs:
           cd integrations/azure_incremental
           make run
         env:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURECLIENTID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURECLIENTSECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURETENANT_D }}
           PORT_WEBHOOK_INGEST_URL: ${{ secrets.PORT_WEBHOOK_INGEST_URL }}
           SYNC_MODE: full
           # Optional: Enhanced resource group tag filtering
