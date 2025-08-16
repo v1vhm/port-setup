@@ -35,6 +35,6 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURECLIENTSECRET }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           PORT_WEBHOOK_INGEST_URL: ${{ secrets.PORT_WEBHOOK_INGEST_URL }}
-          CHANGE_WINDOW_MINUTES: 15
+          CHANGE_WINDOW_MINUTES: 60
           # Optional: Enhanced resource group tag filtering
           # RESOURCE_GROUP_TAG_FILTERS: ${{ secrets.RESOURCE_GROUP_TAG_FILTERS }}
