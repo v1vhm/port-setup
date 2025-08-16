@@ -2,6 +2,7 @@ name: "Incremental sync of Azure resources to Port"
 on:
   schedule:
     - cron: "*/15 * * * *"
+  workflow_dispatch:
 
 jobs:
   sync:
