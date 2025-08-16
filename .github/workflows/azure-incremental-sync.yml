@@ -1,41 +1,110 @@
 name: "Incremental sync of Azure resources to Port"
+
 on:
   schedule:
     - cron: "*/15 * * * *"
   workflow_dispatch:
+    inputs:
+      change_window_minutes:
+        description: "Override change window in minutes"
+        required: false
 
 jobs:
   sync:
     name: Incremental sync
     runs-on: ubuntu-latest
     steps:
+      - name: Set run start time
+        run: echo "RUN_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+
+      - name: Checkout repository for run status
+        uses: actions/checkout@v5
+        with:
+          path: repo
+          persist-credentials: true
+
+      - name: Determine change window
+        id: change_window
+        env:
+          MANUAL_MINUTES: ${{ github.event.inputs.change_window_minutes }}
+        run: |
+          python3 <<'PY'
+          import json, os, datetime, pathlib
+          manual = os.getenv("MANUAL_MINUTES")
+          if manual:
+            minutes = int(manual)
+          else:
+            status_file = pathlib.Path("repo/.github/run-status.json")
+            default = 30
+            if status_file.exists():
+              data = json.load(status_file.open())
+              ts = data.get("last_recorded_change")
+              if ts:
+                last = datetime.datetime.fromisoformat(ts.replace("Z","+00:00"))
+                now = datetime.datetime.utcnow()
+                minutes = int((now - last).total_seconds() / 60) + 2
+              else:
+                minutes = default
+            else:
+              minutes = default
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            f.write(f"minutes={minutes}\n")
+          PY
+
+      - name: Checkout incremental sync repository
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          repository: port-labs/incremental-sync
+          path: incremental-sync
+
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Checkout Repository
-        uses: actions/checkout@v5
-        with:
-          ref: main
-          repository: port-labs/incremental-sync
-
       - name: Install dependencies with Poetry
         run: |
-          cd integrations/azure_incremental
+          cd incremental-sync/integrations/azure_incremental
           python -m pip install --upgrade pip
           pip install poetry
           make install
 
       - name: Run incremental sync
         run: |
-          cd integrations/azure_incremental
+          cd incremental-sync/integrations/azure_incremental
           make run
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZURECLIENTID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURECLIENTSECRET }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           PORT_WEBHOOK_INGEST_URL: ${{ secrets.PORT_WEBHOOK_INGEST_URL }}
-          CHANGE_WINDOW_MINUTES: 30
+          CHANGE_WINDOW_MINUTES: ${{ steps.change_window.outputs.minutes }}
           # Optional: Enhanced resource group tag filtering
           # RESOURCE_GROUP_TAG_FILTERS: ${{ secrets.RESOURCE_GROUP_TAG_FILTERS }}
+
+      - name: Update run status file
+        run: |
+          python3 <<'PY'
+          import json, os, datetime, pathlib
+          status_file = pathlib.Path("repo/.github/run-status.json")
+          status_file.parent.mkdir(parents=True, exist_ok=True)
+          now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+          data = {
+            "run_start": os.environ["RUN_START"],
+            "run_finish": now,
+            "last_recorded_change": now,
+          }
+          status_file.write_text(json.dumps(data, indent=2))
+          PY
+
+      - name: Commit run status
+        run: |
+          cd repo
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/run-status.json
+          git commit -m "chore: update run status" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
