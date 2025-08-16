@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: "*/15 * * * *"
   workflow_dispatch:
+    inputs:
+      change_window_minutes:
+        description: "Override change window in minutes"
+        required: false
 
 jobs:
   sync:
@@ -21,22 +25,28 @@ jobs:
 
       - name: Determine change window
         id: change_window
+        env:
+          MANUAL_MINUTES: ${{ github.event.inputs.change_window_minutes }}
         run: |
           python3 <<'PY'
           import json, os, datetime, pathlib
-          status_file = pathlib.Path("repo/.github/run-status.json")
-          default = 30
-          if status_file.exists():
-            data = json.load(status_file.open())
-            ts = data.get("last_recorded_change")
-            if ts:
-              last = datetime.datetime.fromisoformat(ts.replace("Z","+00:00"))
-              now = datetime.datetime.utcnow()
-              minutes = int((now - last).total_seconds() / 60) + 2
+          manual = os.getenv("MANUAL_MINUTES")
+          if manual:
+            minutes = int(manual)
+          else:
+            status_file = pathlib.Path("repo/.github/run-status.json")
+            default = 30
+            if status_file.exists():
+              data = json.load(status_file.open())
+              ts = data.get("last_recorded_change")
+              if ts:
+                last = datetime.datetime.fromisoformat(ts.replace("Z","+00:00"))
+                now = datetime.datetime.utcnow()
+                minutes = int((now - last).total_seconds() / 60) + 2
+              else:
+                minutes = default
             else:
               minutes = default
-          else:
-            minutes = default
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
             f.write(f"minutes={minutes}\n")
           PY
