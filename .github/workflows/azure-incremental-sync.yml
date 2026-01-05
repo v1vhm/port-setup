@@ -20,7 +20,7 @@ jobs:
         run: echo "RUN_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
 
       - name: Checkout repository for run status
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: repo
           persist-credentials: true
@@ -54,14 +54,14 @@ jobs:
           PY
 
       - name: Checkout incremental sync repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: main
           repository: port-labs/incremental-sync
           path: incremental-sync
 
       - name: Setup Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
